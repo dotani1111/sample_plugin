@@ -36,6 +36,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+//use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class ProductController extends AbstractController
 {
@@ -75,6 +76,7 @@ class ProductController extends AbstractController
     protected $productListMaxRepository;
 
     private $title = '';
+    private $containerBuilder;
 
     /**
      * ProductController constructor.
@@ -86,6 +88,8 @@ class ProductController extends AbstractController
      * @param BaseInfoRepository $baseInfoRepository
      * @param AuthenticationUtils $helper
      * @param ProductListMaxRepository $productListMaxRepository
+     * @param ContainerBuilder $containerBuilder
+     * @throws \Exception
      */
     public function __construct(
         PurchaseFlow $cartPurchaseFlow,
@@ -95,6 +99,7 @@ class ProductController extends AbstractController
         BaseInfoRepository $baseInfoRepository,
         AuthenticationUtils $helper,
         ProductListMaxRepository $productListMaxRepository
+        //ContainerBuilder $containerBuilder
     ) {
         $this->purchaseFlow = $cartPurchaseFlow;
         $this->customerFavoriteProductRepository = $customerFavoriteProductRepository;
@@ -103,6 +108,7 @@ class ProductController extends AbstractController
         $this->BaseInfo = $baseInfoRepository->get();
         $this->helper = $helper;
         $this->productListMaxRepository = $productListMaxRepository;
+        //$this->containerBuilder = $containerBuilder;
     }
 
     /**
@@ -245,6 +251,22 @@ class ProductController extends AbstractController
             $Customer = $this->getUser();
             $is_favorite = $this->customerFavoriteProductRepository->isFavorite($Customer, $Product);
         }
+
+        $tags = ['if'];
+        $filters = ['upper'];
+        $methods = [
+            'Article' => ['getTitle', 'getBody'],
+        ];
+        $properties = [
+            'Article' => ['title', 'body'],
+        ];
+        $functions = ['range'];
+        $policy = new \Twig\Sandbox\SecurityPolicy($tags, $filters, $methods, $properties, $functions);
+        $sandbox = new \Twig\Extension\SandboxExtension($policy);
+
+        $twig  = $this->container->get('twig');
+        $twig->addExtension($sandbox);
+
 
         return [
             'title' => $this->title,

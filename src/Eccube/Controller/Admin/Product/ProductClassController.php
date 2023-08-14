@@ -347,6 +347,7 @@ class ProductClassController extends AbstractController
                         'price02_inc_tax',
                         'create_date',
                         'update_date',
+                        'ProductStock',
                         'Creator',
                     ]);
                     $pc = $ExistsProductClass;
